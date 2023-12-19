@@ -1,0 +1,58 @@
+import numpy as np
+import cv2
+
+
+def gauss(img, size):
+    return cv2.GaussianBlur(img, size, 0)
+
+def dialate(img):
+    
+    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+    dilate = cv2.dilate(img, horizontal_kernel, iterations=2)
+    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+    return cv2.dilate(dilate, vertical_kernel, iterations=2)
+
+
+def generateLines(image, numLines, rng):
+    line_width = 10
+    w = image.shape[1]
+    
+    where = (rng.random(numLines)*w).astype(int)
+
+    for val in where:
+        image[:, val - line_width:val + line_width] = image[:, val - line_width:val + line_width]*(1+0.2)
+        image[:, val - line_width] = 0
+        image[:, val + line_width] = 0
+
+    return image
+
+
+def genImg(num, size=(500, 500), resize=2):
+    arr2 = rng.random.randint(0, 250, size)
+    # print(arr2)
+
+    image = cv2.resize(arr2, None, fx=resize, fy=resize, interpolation= cv2.INTER_LINEAR)
+
+    # kernel = np.ones((5,5),np.uint8)*10
+    image = gauss(image, (5, 5))
+
+    # cv2.imshow("image", image)
+
+
+    image_dialate = dialate(image)
+    image_next = dialate(gauss(image_dialate, (19, 19)))
+    
+    # cv2.imshow("dilate", image_next)
+
+    image_step = gauss((image_next % 10)*25, (13, ))
+
+    # cv2.imshow(f"step{num}", image_step)
+
+    # cv2.imshow("lines", generateLines(image_step, 10, rng))
+
+    return image_step
+
+
+
+
+
